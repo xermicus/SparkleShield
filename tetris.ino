@@ -3,7 +3,8 @@
 
 #define BRIGHTNESS 16
 
-#define RED CRGB(255, 0, 0)     
+#define RED CRGB(255, 0, 0) 
+#define RED_BOTTOM CRGB(255, 0, 255)     
 #define GREEN CRGB(0, 255, 0)
 #define BLUE CRGB(0, 0, 255)      // 4er Balken
 #define YELLOW CRGB(255, 255, 0)  // Quadrat
@@ -27,13 +28,24 @@ void spawn_element(CRGB element) {
       }      
     }
   }
+  else if (element == RED) { 
+    int randx = 1;
+    field[0][randx+1] = element;
+    sparkle.set(0, randx+1, element); 
+    field[1][randx] = element;
+    sparkle.set(1, randx, element); 
+    field[1][randx+1] = element;
+    sparkle.set(1, randx+1, element); 
+    field[1][randx+2] = element;
+    sparkle.set(1, randx+2, element); 
+  }
 }
 
 
 int calc_bottom(int y) {
   for (int i = 9; i > 0; i--) {
     if (field[i][y] == WHITE) {
-      return i-1;  
+      return i;  
     }
   }
   
@@ -44,21 +56,18 @@ int calc_bottom(int y) {
 void update_field() {
   CRGB cp_field[10][7] = field;
   int i_bottom;
-  for (int i = 1; i < 9; i++) {
+  for (int i = 0; i < 9; i++) {
     for (int j = 0; j < 7; j++) {
       i_bottom = calc_bottom(j);
-      // YELLOW, move down
-      if (cp_field[i][j] == YELLOW && cp_field[i+1][j] == WHITE) {
-        field[i+1][j] = YELLOW;
-        field[i-1][j] = WHITE;
-        sparkle.set(i+1, j, YELLOW);
-        sparkle.set(i-1, j, WHITE);
-        // check for bottom
-        if (i == i_bottom) {
-          field[i][j] = YELLOW_BOTTOM;
-          field[i+1][j] = YELLOW_BOTTOM;
-          sparkle.set(i, j, field[i][j]);
-          sparkle.set(i+1, j, field[i+1][j]);
+      if (cp_field[i][j] != WHITE && i < i_bottom) {
+        field[i+1][j] = cp_field[i][j];
+        sparkle.set(i+1, j, cp_field[i][j]);
+        if(cp_field[i-1][j] == WHITE || i < 1) {
+          field[i][j] = WHITE;
+          sparkle.set(i, j, WHITE);
+        }
+        // Spawn new
+        if(i+1 == i_bottom) {
           spawn_element(YELLOW);
         }
       }
@@ -66,25 +75,10 @@ void update_field() {
   }
 }
 
-void draw_field() {
-  /*for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 7; j++) {
-      /*if (field[i][j] != WHITE) {
-        sparkle.set(i, j, field[i][j]);
-      }
-      else {
-        sparkle.set(i, j, WHITE);
-      }
-    }
-  }*/
-}
-
 void loop() {
-  delay(200);  
+  delay(300);  
   update_field();
 
-  //draw_field();
-  
   sparkle.show();
 }
 
@@ -98,6 +92,7 @@ void setup() {
     }
   }
   
+  spawn_element(RED);
   spawn_element(YELLOW);
   sparkle.show();
 }
