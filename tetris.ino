@@ -234,20 +234,8 @@ void update_field() {
     for (int i = 0; i < 4; i++) {
       field[block[i][0]][block[i][1]] = MOVING;
     }
+    check_fullrow();
     spawn_element(-1, -1);
-  }
-  
-  // Full Row detection
-  for (int i = 0; i < 6; i++) {
-    bool full = true;
-    for (int j = 0; j < 9; j++) {
-      if (field[i][j] == WHITE) {
-        full = false;
-      }
-    }
-    if (full) {
-      //gameover();
-    }
   }
 }
 
@@ -279,6 +267,9 @@ void parse_cmd(){
         break;
       case (char)13:
         b_moved = true;
+        break;
+      case 'q':
+        gameover();
         break;
       default:
         break;
@@ -369,11 +360,30 @@ void moved() {
       for (int i = 0; i < 4; i++) {
           field[block[i][0]][block[i][1]] = MOVING;
       }
+  
+      check_fullrow();
       spawn_element(-1, -1);
     }
   }
   
   b_moved = false;
+}
+
+void check_fullrow() {  
+  for (int i = 9; i > 0; i--) {
+    bool full = true;
+    for (int j = 0; j < 6; j++) {
+      if (field[i][j] == WHITE) {
+        full = false;
+      }
+    }
+    if (full) {
+      /*for (int j = 0; j < 6; j++) {
+        field[i][j] == WHITE;
+        sparkle.set(i, j, WHITE);
+      }*/
+    }
+  }
 }
 
 void loop() {
