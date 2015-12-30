@@ -25,6 +25,7 @@ CRGB field[10][7];
 bool b_gameover = false;
 bool b_mover = false;
 bool b_movel = false;
+bool b_moved = false;
 
 SparkleShield sparkle;
 
@@ -245,7 +246,7 @@ void update_field() {
       }
     }
     if (full) {
-      gameover();
+      //gameover();
     }
   }
 }
@@ -270,11 +271,14 @@ void parse_cmd(){
         e = Serial.parseInt();
         spawn_element(x, e);
         break;
-      case 'r':
+      case 'd':
         b_mover = true;
         break;
-      case 'l':
+      case 'a':
         b_movel = true;
+        break;
+      case (char)13:
+        b_moved = true;
         break;
       default:
         break;
@@ -336,6 +340,42 @@ void movel() {
   b_movel = false;
 }
 
+void moved() {
+  bool b_move = true;
+
+  while(b_move){
+    for (int i = 0; i < 4; i++) {
+      // Collision detectionu
+      if (field[block[i][0]+1][block[i][1]] != WHITE ) {
+        b_move = false;
+      }
+    }
+    if (b_move) {
+      for (int i = 0; i < 4; i++) {
+        sparkle.set(block[i][0]+1, block[i][1], MOVING);
+        block[i][0]++;
+        bool b_top = true;
+        for (int j = 0; j < 4; j++){
+          if (block[j][0] ==  block[i][0]-1 && block[j][1] == block[i][1]) {
+            b_top = false;
+          }
+        }
+        if(b_top) {
+          sparkle.set(block[i][0]-1, block[i][1], WHITE);
+        }
+      }
+    }
+    else {
+      for (int i = 0; i < 4; i++) {
+          field[block[i][0]][block[i][1]] = MOVING;
+      }
+      spawn_element(-1, -1);
+    }
+  }
+  
+  b_moved = false;
+}
+
 void loop() {
   delay(500); 
   
@@ -352,6 +392,9 @@ void loop() {
   }
   else if(b_movel) {
     movel();
+  }
+  else if(b_moved) {
+    moved();
   }
 
   sparkle.show();
