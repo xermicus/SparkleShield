@@ -7,8 +7,9 @@
 #define GREEN CRGB(0, 255, 0)     // L
 #define BLUE CRGB(0, 0, 255)      // 4er Balken
 #define YELLOW CRGB(255, 255, 0)  // Quadrat
-#define GREY CRGB(128, 128, 128)  // J
-//#define WHITE CHSV(0, 0, 64)
+#define GREY CRGB(255, 255, 255)  // J
+#define LBLUE CRGB(0, 255, 255)  // S
+#define PINK CRGB(255, 0, 255)  // Z
 #define WHITE CRGB(0, 0, 0)
 
 int block[4][2];
@@ -20,10 +21,72 @@ CRGB field[10][7];
 
 SparkleShield sparkle;
 
-void spawn_element(CRGB element) {
-  int randx = 4;
-  MOVING = element;  
+void spawn_element() {
+  CRGB element;
+  
+  int r = random(7);
+  switch (r) {
+    case 0:
+      element = PINK;
+      break;
+    case 1:
+      element = LBLUE;
+      break;
+    case 2:
+      element = RED;
+      break;
+    case 3:
+      element = YELLOW;
+      break;
+    case 4:
+      element = RED;
+      break;
+    case 5:
+      element = GREEN;
+      break;
+    case 6:
+      element = BLUE;
+      break;
+    default:
+      break;
+  }
+  
+  MOVING = element; 
+  
+  if (element == PINK) {
+    int randx = random(5);
+    block[0][0] = 0;
+    block[0][1] = randx;
+    block[1][0] = 0;
+    block[1][1] = randx+1;
+    block[2][0] = 1;
+    block[2][1] = randx+1;
+    block[3][0] = 1;
+    block[3][1] = randx+2;
+
+    for (int i = 0; i < 4; i++) {
+      //field[block[i][0]][block[i][1]] = element;
+      sparkle.set(block[i][0], block[i][1], element);
+    }
+  }  
+  if (element == LBLUE) {
+    int randx = random(5);
+    block[0][0] = 1;
+    block[0][1] = randx+1;
+    block[1][0] = 0;
+    block[1][1] = randx+1;
+    block[2][0] = 0;
+    block[2][1] = randx+2;
+    block[3][0] = 1;
+    block[3][1] = randx;
+
+    for (int i = 0; i < 4; i++) {
+      //field[block[i][0]][block[i][1]] = element;
+      sparkle.set(block[i][0], block[i][1], element);
+    }
+  }  
   if (element == GREY) {
+    int randx = random(6);
     block[0][0] = 0;
     block[0][1] = randx+1;
     block[1][0] = 1;
@@ -39,6 +102,7 @@ void spawn_element(CRGB element) {
     }
   }
   if (element == YELLOW) {
+    int randx = random(6);
     block[0][0] = 0;
     block[0][1] = randx;
     block[1][0] = 1;
@@ -53,38 +117,53 @@ void spawn_element(CRGB element) {
       sparkle.set(block[i][0], block[i][1], element);
     } 
   }
-  else if (element == RED) { 
-    int randx = 1;
-    field[0][randx+1] = element;
-    sparkle.set(0, randx+1, element); 
-    field[1][randx] = element;
-    sparkle.set(1, randx, element); 
-    field[1][randx+1] = element;
-    sparkle.set(1, randx+1, element); 
-    field[1][randx+2] = element;
-    sparkle.set(1, randx+2, element); 
+  else if (element == RED) {
+  int randx = random(5);
+    block[0][0] = 0;
+    block[0][1] = randx+1;
+    block[1][0] = 1;
+    block[1][1] = randx;
+    block[2][0] = 1;
+    block[2][1] = randx+1;
+    block[3][0] = 1;
+    block[3][1] = randx+2;
+
+    for (int i = 0; i < 4; i++) {
+      //field[block[i][0]][block[i][1]] = element;
+      sparkle.set(block[i][0], block[i][1], element);
+    } 
   }
   else if (element == BLUE) { 
-    int randx = 1;
-    field[0][randx] = element;
-    sparkle.set(0, randx, element); 
-    field[1][randx] = element;
-    sparkle.set(1, randx, element); 
-    field[2][randx] = element;
-    sparkle.set(2, randx, element); 
-    field[3][randx] = element;
-    sparkle.set(3, randx, element); 
+  int randx = random(7);
+    block[0][0] = 0;
+    block[0][1] = randx;
+    block[1][0] = 1;
+    block[1][1] = randx;
+    block[2][0] = 2;
+    block[2][1] = randx;
+    block[3][0] = 3;
+    block[3][1] = randx;
+
+    for (int i = 0; i < 4; i++) {
+      //field[block[i][0]][block[i][1]] = element;
+      sparkle.set(block[i][0], block[i][1], element);
+    } 
   }
   else if (element == GREEN) { 
-    int randx = 1;
-    field[0][randx] = element;
-    sparkle.set(0, randx, element); 
-    field[1][randx] = element;
-    sparkle.set(1, randx, element); 
-    field[2][randx] = element;
-    sparkle.set(2, randx, element); 
-    field[2][randx+1] = element;
-    sparkle.set(2, randx+1, element); 
+    int randx = random(6);
+    block[0][0] = 0;
+    block[0][1] = randx;
+    block[1][0] = 1;
+    block[1][1] = randx;
+    block[2][0] = 2;
+    block[2][1] = randx;
+    block[3][0] = 2;
+    block[3][1] = randx+1;
+
+    for (int i = 0; i < 4; i++) {
+      //field[block[i][0]][block[i][1]] = element;
+      sparkle.set(block[i][0], block[i][1], element);
+    } 
   }
 }
 
@@ -134,7 +213,7 @@ void update_field() {
     for (int i = 0; i < 4; i++) {
       field[block[i][0]][block[i][1]] = MOVING;
     }
-    spawn_element(YELLOW);
+    spawn_element();
   }
   
 }
@@ -156,6 +235,6 @@ void setup() {
     }
   }
   
-  spawn_element(GREY);
+  spawn_element();
   sparkle.show();
 }
