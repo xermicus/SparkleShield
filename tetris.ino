@@ -1,6 +1,10 @@
 #include <FastLED.h>
 #include <SparkleShield.h>
 
+#define M_GAMEOVER "GAME OVER"
+#define TEXT_COLOR CHSV(70, 255, 255)
+#define BACKGROUND_COLOR CHSV(128, 255, 200)
+
 #define BRIGHTNESS 16
 
 #define RED CRGB(255, 0, 0)           //Podest
@@ -16,7 +20,8 @@ int block[4][2];
 CRGB MOVING;
 
 CRGB field[10][7];
-//CRGB cp_field[10][7];
+
+bool b_gameover = false;
 
 
 SparkleShield sparkle;
@@ -24,7 +29,7 @@ SparkleShield sparkle;
 void spawn_element() {
   CRGB element;
   
-  int r = random(7);
+  int r = random(2);
   switch (r) {
     case 0:
       element = PINK;
@@ -50,8 +55,8 @@ void spawn_element() {
     default:
       break;
   }
-  
-  MOVING = element; 
+
+  MOVING = element;
   
   if (element == PINK) {
     int randx = random(5);
@@ -65,7 +70,9 @@ void spawn_element() {
     block[3][1] = randx+2;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }      
       sparkle.set(block[i][0], block[i][1], element);
     }
   }  
@@ -81,7 +88,9 @@ void spawn_element() {
     block[3][1] = randx;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }      
       sparkle.set(block[i][0], block[i][1], element);
     }
   }  
@@ -180,12 +189,12 @@ int calc_bottom(int y) {
 
 
 void update_field() {  
-  CRGB cp_field[10][7] = field;
-  int i_bottom = 0;
+  //memcpy(cp_field, field, sizeof(cp_field));
+  //CRGB cp_field[10][7] = field;
   bool b_move = true;
 
   for (int i = 0; i < 4; i++) {
-    if (cp_field[block[i][0]+1][block[i][1]] != WHITE) {
+    if (field[block[i][0]+1][block[i][1]] != WHITE) {
       b_move = false;
     }
   }
@@ -196,10 +205,8 @@ void update_field() {
       sparkle.set(block[i][0]+1, block[i][1], MOVING);
       block[i][0]++;
       bool b_top = true;
-      //int i_top = block[i][0];
       for (int j = 0; j < 4; j++){
         if (block[j][0] ==  block[i][0]-1 && block[j][1] == block[i][1]) {
-          //i_top = block[j][0];
           b_top = false;
         }
       }
@@ -218,9 +225,24 @@ void update_field() {
   
 }
 
+void gameover() {
+    /*sparkle.clear(BACKGROUND_COLOR);
+    sparkle.scroll_text(M_GAMEOVER, TEXT_COLOR);
+    sparkle.show(); */
+    sparkle.clear(CHSV(0, 0, 0));
+    setup();
+    b_gameover = false;
+}
+
 void loop() {
   delay(300);  
-  update_field();
+
+  if (b_gameover) {
+    gameover();
+  }
+  else {
+    update_field(); 
+  }
 
   sparkle.show();
 }
