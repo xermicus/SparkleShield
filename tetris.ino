@@ -1,5 +1,6 @@
 #include <FastLED.h>
 #include <SparkleShield.h>
+#include <avr/wdt.h>
 
 #define M_GAMEOVER "GAME OVER"
 #define TEXT_COLOR CHSV(70, 255, 255)
@@ -12,7 +13,7 @@
 #define BLUE CRGB(0, 0, 255)      // 4er Balken
 #define YELLOW CRGB(255, 255, 0)  // Quadrat
 #define GREY CRGB(255, 255, 255)  // J
-#define LBLUE CRGB(0, 255, 255)  // S
+#define LBLUE CRGB(255, 128, 0)  // S
 #define PINK CRGB(255, 0, 255)  // Z
 #define WHITE CRGB(0, 0, 0)
 
@@ -22,14 +23,16 @@ CRGB MOVING;
 CRGB field[10][7];
 
 bool b_gameover = false;
-
+bool b_mover = false;
+bool b_movel = false;
 
 SparkleShield sparkle;
 
-void spawn_element() {
+
+void spawn_element(int x, int e) {
   CRGB element;
   
-  int r = random(7);
+  int r = e != -1 ? e : random(7);
   switch (r) {
     case 0:
       element = PINK;
@@ -44,7 +47,7 @@ void spawn_element() {
       element = YELLOW;
       break;
     case 4:
-      element = RED;
+      element = GREY;
       break;
     case 5:
       element = GREEN;
@@ -55,11 +58,11 @@ void spawn_element() {
     default:
       break;
   }
-
+  
   MOVING = element;
   
   if (element == PINK) {
-    int randx = random(5);
+    int randx = x != -1 ? x : random(5);
     block[0][0] = 0;
     block[0][1] = randx;
     block[1][0] = 0;
@@ -77,7 +80,7 @@ void spawn_element() {
     }
   }  
   if (element == LBLUE) {
-    int randx = random(5);
+    int randx = x != -1 ? x : random(5);
     block[0][0] = 1;
     block[0][1] = randx+1;
     block[1][0] = 0;
@@ -95,7 +98,7 @@ void spawn_element() {
     }
   }  
   if (element == GREY) {
-    int randx = random(6);
+    int randx = x != -1 ? x : random(6);
     block[0][0] = 0;
     block[0][1] = randx+1;
     block[1][0] = 1;
@@ -113,7 +116,7 @@ void spawn_element() {
     }
   }
   if (element == YELLOW) {
-    int randx = random(6);
+    int randx = x != -1 ? x : random(6);
     block[0][0] = 0;
     block[0][1] = randx;
     block[1][0] = 1;
@@ -131,7 +134,7 @@ void spawn_element() {
     } 
   }
   else if (element == RED) {
-  int randx = random(5);
+    int randx = x != -1 ? x : random(5);
     block[0][0] = 0;
     block[0][1] = randx+1;
     block[1][0] = 1;
@@ -149,7 +152,7 @@ void spawn_element() {
     } 
   }
   else if (element == BLUE) { 
-  int randx = random(7);
+    int randx = x != -1 ? x : random(7);
     block[0][0] = 0;
     block[0][1] = randx;
     block[1][0] = 1;
@@ -167,7 +170,7 @@ void spawn_element() {
     } 
   }
   else if (element == GREEN) { 
-    int randx = random(6);
+    int randx = x != -1 ? x : random(6);
     block[0][0] = 0;
     block[0][1] = randx;
     block[1][0] = 1;
@@ -199,11 +202,10 @@ int calc_bottom(int y) {
 
 
 void update_field() {  
-  //memcpy(cp_field, field, sizeof(cp_field));
-  //CRGB cp_field[10][7] = field;
   bool b_move = true;
 
   for (int i = 0; i < 4; i++) {
+    // Collision detectionu
     if (field[block[i][0]+1][block[i][1]] != WHITE) {
       b_move = false;
     }
@@ -225,27 +227,119 @@ void update_field() {
       }
     }
     
+    //parse_cmd();
   }
   else {
     for (int i = 0; i < 4; i++) {
       field[block[i][0]][block[i][1]] = MOVING;
     }
-    spawn_element();
+    spawn_element(-1, -1);
   }
   
+  // Full Row detection
+  for (int i = 0; i < 6; i++) {
+    bool full = true;
+    for (int j = 0; j < 9; j++) {
+      if (field[i][j] == WHITE) {
+        full = false;
+      }
+    }
+    if (full) {
+      gameover();
+    }
+  }
 }
 
 void gameover() {
     /*sparkle.clear(BACKGROUND_COLOR);
     sparkle.scroll_text(M_GAMEOVER, TEXT_COLOR);
     sparkle.show(); */
+    delay(100);
     sparkle.clear(CHSV(0, 0, 0));
+    delay(100);
     setup();
     b_gameover = false;
 }
 
+void parse_cmd(){
+  while (Serial.available()) {
+    switch (Serial.read()) {
+      uint16_t x, e;
+      case 's':
+        x = Serial.parseInt();
+        e = Serial.parseInt();
+        spawn_element(x, e);
+        break;
+      case 'r':
+        b_mover = true;
+        break;
+      case 'l':
+        b_movel = true;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+void mover() {
+  bool b_canmove = true;
+  for (int i = 0; i < 4; i++) {
+    // Collision detection
+    if (field[block[i][0]][block[i][1]+1] != WHITE || block[i][1] > 5) {
+      b_canmove = false;
+    }
+  }
+  
+  if (b_canmove) {
+    for (int i = 0; i < 4; i++) {
+      sparkle.set(block[i][0], block[i][1]+1, MOVING);
+      block[i][1]++;
+      bool b_top = true;
+      for (int j = 0; j < 4; j++){
+        if (block[j][1] ==  block[i][1]-1 && block[j][0] == block[i][0]) {
+          b_top = false;
+        }
+      }
+      if(b_top) {
+        sparkle.set(block[i][0], block[i][1]-1, WHITE);
+      }
+    }
+  }
+  b_mover = false;
+}
+
+void movel() {
+  bool b_canmove = true;
+  for (int i = 0; i < 4; i++) {
+    // Collision detection
+    if (field[block[i][0]][block[i][1]-1] != WHITE || block[i][1] < 1) {
+      b_canmove = false;
+    }
+  }
+  
+  if (b_canmove) {
+    for (int i = 0; i < 4; i++) {
+      sparkle.set(block[i][0], block[i][1]-1, MOVING);
+      block[i][1]--;
+      bool b_top = true;
+      for (int j = 0; j < 4; j++){
+        if (block[j][1] ==  block[i][1]+1 && block[j][0] == block[i][0]) {
+          b_top = false;
+        }
+      }
+      if(b_top) {
+        sparkle.set(block[i][0], block[i][1]+1, WHITE);
+      }
+    }
+  }
+  b_movel = false;
+}
+
 void loop() {
-  delay(300);  
+  delay(500); 
+  
+  parse_cmd();
 
   if (b_gameover) {
     gameover();
@@ -253,12 +347,22 @@ void loop() {
   else {
     update_field(); 
   }
+  if (b_mover) {
+    mover();
+  }
+  else if(b_movel) {
+    movel();
+  }
 
   sparkle.show();
 }
 
 void setup() {
   sparkle.setBrightness(BRIGHTNESS);
+  
+  wdt_disable();
+  Serial.begin(115200);
+  Serial.println("starting round");
 
   for(int i = 0; i < 10; i++) {
     for(int j = 0; j < 7; j++) {
@@ -267,6 +371,6 @@ void setup() {
     }
   }
   
-  spawn_element();
+  //spawn_element(-1, -1);
   sparkle.show();
 }
