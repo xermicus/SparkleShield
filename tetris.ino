@@ -29,7 +29,7 @@ SparkleShield sparkle;
 void spawn_element() {
   CRGB element;
   
-  int r = random(2);
+  int r = random(7);
   switch (r) {
     case 0:
       element = PINK;
@@ -106,7 +106,9 @@ void spawn_element() {
     block[3][1] = randx;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }    
       sparkle.set(block[i][0], block[i][1], element);
     }
   }
@@ -122,7 +124,9 @@ void spawn_element() {
     block[3][1] = randx+1;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }    
       sparkle.set(block[i][0], block[i][1], element);
     } 
   }
@@ -138,7 +142,9 @@ void spawn_element() {
     block[3][1] = randx+2;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }    
       sparkle.set(block[i][0], block[i][1], element);
     } 
   }
@@ -154,7 +160,9 @@ void spawn_element() {
     block[3][1] = randx;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }    
       sparkle.set(block[i][0], block[i][1], element);
     } 
   }
@@ -170,7 +178,9 @@ void spawn_element() {
     block[3][1] = randx+1;
 
     for (int i = 0; i < 4; i++) {
-      //field[block[i][0]][block[i][1]] = element;
+      if (field[block[i][0]][block[i][1]] != WHITE) {
+        b_gameover = true;
+      }    
       sparkle.set(block[i][0], block[i][1], element);
     } 
   }
