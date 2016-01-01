@@ -13,7 +13,7 @@
 #define BLUE CRGB(0, 0, 255)      // 4er Balken
 #define YELLOW CRGB(255, 255, 0)  // Quadrat
 #define GREY CRGB(255, 255, 255)  // J
-#define LBLUE CRGB(255, 128, 0)  // S
+#define LBLUE CRGB(0, 255, 128)  // S
 #define PINK CRGB(255, 0, 255)  // Z
 #define WHITE CRGB(0, 0, 0)
 
@@ -76,8 +76,10 @@ void spawn_element(int x, int e) {
     for (int i = 0; i < 4; i++) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
-      }      
-      sparkle.set(block[i][0], block[i][1], element);
+      }
+      else {      
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     }
   }  
   if (element == LBLUE) {
@@ -94,8 +96,10 @@ void spawn_element(int x, int e) {
     for (int i = 0; i < 4; i++) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
-      }      
-      sparkle.set(block[i][0], block[i][1], element);
+      } 
+      else {      
+         sparkle.set(block[i][0], block[i][1], element);
+      }
     }
   }  
   if (element == GREY) {
@@ -112,8 +116,10 @@ void spawn_element(int x, int e) {
     for (int i = 0; i < 4; i++) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
-      }    
-      sparkle.set(block[i][0], block[i][1], element);
+      }   
+      else {  
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     }
   }
   if (element == YELLOW) {
@@ -130,8 +136,10 @@ void spawn_element(int x, int e) {
     for (int i = 0; i < 4; i++) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
-      }    
-      sparkle.set(block[i][0], block[i][1], element);
+      }
+      else {     
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     } 
   }
   else if (element == RED) {
@@ -149,7 +157,9 @@ void spawn_element(int x, int e) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
       }    
-      sparkle.set(block[i][0], block[i][1], element);
+      else { 
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     } 
   }
   else if (element == BLUE) { 
@@ -167,10 +177,12 @@ void spawn_element(int x, int e) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
       }    
-      sparkle.set(block[i][0], block[i][1], element);
+      else { 
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     } 
   }
-  else if (element == GREEN) { 
+  else if (element == GREEN) {
     int randx = x != -1 ? x : random(6);
     block[0][0] = 0;
     block[0][1] = randx;
@@ -184,8 +196,10 @@ void spawn_element(int x, int e) {
     for (int i = 0; i < 4; i++) {
       if (field[block[i][0]][block[i][1]] != WHITE) {
         b_gameover = true;
-      }    
-      sparkle.set(block[i][0], block[i][1], element);
+      }  
+      else {   
+        sparkle.set(block[i][0], block[i][1], element);
+      }
     } 
   }
 }
@@ -234,7 +248,7 @@ void update_field() {
     for (int i = 0; i < 4; i++) {
       field[block[i][0]][block[i][1]] = MOVING;
     }
-    check_fullrow();
+    //check_fullrow();
     spawn_element(-1, -1);
   }
 }
@@ -337,7 +351,7 @@ void moved() {
   while(b_move){
     for (int i = 0; i < 4; i++) {
       // Collision detectionu
-      if (field[block[i][0]+1][block[i][1]] != WHITE ) {
+      if (field[block[i][0]+1][block[i][1]] != WHITE) {
         b_move = false;
       }
     }
@@ -360,8 +374,7 @@ void moved() {
       for (int i = 0; i < 4; i++) {
           field[block[i][0]][block[i][1]] = MOVING;
       }
-  
-      check_fullrow();
+
       spawn_element(-1, -1);
     }
   }
@@ -370,18 +383,27 @@ void moved() {
 }
 
 void check_fullrow() {  
+  bool b_switch = false;
   for (int i = 9; i > 0; i--) {
     bool full = true;
-    for (int j = 0; j < 6; j++) {
+    for (int j = 0; j < 7; j++) {
       if (field[i][j] == WHITE) {
         full = false;
       }
     }
     if (full) {
-      /*for (int j = 0; j < 6; j++) {
-        field[i][j] == WHITE;
-        sparkle.set(i, j, WHITE);
-      }*/
+      b_switch = true;
+    }
+    if (b_switch) {
+      for (int j = 0; j < 7; j++) {
+        field[i][j] = field[i-1][j];
+        sparkle.set(i, j, field[i][j]);
+        if (field[i-1][j] == WHITE) {
+          field[i][j] = WHITE;
+          sparkle.set(i, j, WHITE);
+        }
+        
+      }
     }
   }
 }
@@ -406,6 +428,8 @@ void loop() {
   else if(b_moved) {
     moved();
   }
+
+  check_fullrow();
 
   sparkle.show();
 }
