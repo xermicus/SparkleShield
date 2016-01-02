@@ -268,7 +268,7 @@ void parse_cmd(){
   while (Serial.available()) {
     switch (Serial.read()) {
       uint16_t x, e;
-      case 's':
+      case 'e':
         x = Serial.parseInt();
         e = Serial.parseInt();
         spawn_element(x, e);
@@ -284,6 +284,9 @@ void parse_cmd(){
         break;
       case 'q':
         gameover();
+        break;
+      case 's':
+        rotate();
         break;
       default:
         break;
@@ -404,6 +407,23 @@ void check_fullrow() {
         }
         
       }
+    }
+  }
+}
+
+void rotate() {
+  // Use Matrix
+  //...
+  
+  if (MOVING == RED) {
+    sparkle.set(block[2][0], block[2][1], WHITE);
+    sparkle.set(block[3][0], block[3][1], WHITE);
+    block[2][0] -= 1;
+    block[2][1] -= 1;
+    block[3][0] -= 2;
+    block[3][1] -= 2;
+    for(int i = 0; i < 4; i++) {
+        sparkle.set(block[i][0], block[i][1], MOVING);
     }
   }
 }
