@@ -12,15 +12,16 @@
 #define SNAKE CRGB(255, 255, 255)
 #define WHITE CRGB(0, 0, 0)
 
-CRGB field[10][7];
-
 bool b_gameover = false;
-bool b_mover = false;
-bool b_movel = false;
+//bool b_mover = false;
+//bool b_movel = false;
 bool b_enter = false;
 
-int i_delay = 500;
-int i_direction[1][1];
+int i_delay = 1000;
+int a_direction[2];
+int a_snake[70][2];
+int a_apple[2];
+int i_length = 1;
 
 SparkleShield sparkle;
 
@@ -30,10 +31,10 @@ void parse_cmd(){
     switch (Serial.read()) {
       uint16_t x;
       case 'd':
-        b_mover = true;
+        turn_r();
         break;
       case 'a':
-        b_movel = true;
+        turn_l();
         break;
       case (char)13:
         b_enter = true;
@@ -47,8 +48,50 @@ void parse_cmd(){
   }
 }
 
-void move() {
+void turn_l() {
+  if (a_direction[0] == 1) {
+    a_direction[0] = 0;
+    a_direction[1] = 1;
+  }
+  else if (a_direction[0] == -1) {
+    a_direction[0] = 0;
+    a_direction[1] = -1;
+  }
+  else if (a_direction[1] == 1) {
+    a_direction[0] = 1;
+    a_direction[1] = 0;
+  }
+  else if (a_direction[1] == -1) {
+    a_direction[0] = -1;
+    a_direction[1] = 0;
+  }
+}
+
+void turn_r() {
   
+}
+
+void next() {
+  // letztes teil ablöschen
+  sparkle.set(a_snake[i_length-1][0], a_snake[i_length-1][1], WHITE);
+
+  // die schlange verschieben
+  for (int i = 1; i < i_length; i++) {
+    a_snake[i][0] = a_snake[i-1][0];
+    a_snake[i][1] = a_snake[i-1][1];
+  }
+  
+  // kopf neu setzen
+  a_snake[0][0] += a_direction[0];
+  a_snake[0][1] += a_direction[1];
+
+  // auf apfel prüfen
+  if (a_snake[0][0] == a_apple[0] && a_snake[0][1] == a_apple[1]) {
+    i_length++;
+    spawn_apple();
+  }
+  
+  sparkle.set(a_snake[0][0], a_snake[0][1], SNAKE);
 }
 
 void loop() {
@@ -56,30 +99,31 @@ void loop() {
   
   parse_cmd();
 
+  next();
+
   sparkle.show();
 }
 
 void spawn_snake() {
-  // clear
-  for(int i = 0; i < 10; i++) {
-    for(int j = 0; j < 7; j++) {
-      field[i][j] = WHITE;
-      sparkle.set(i, j, WHITE);
-    }
-  }
   int x = random(10);
   int y = random(7);
-  field[x][y] = SNAKE;
   sparkle.set(x, y, SNAKE);
+  a_snake[0][0] = x;
+  a_snake[0][1] = y;
+  
+  /*a_apple[0] = x+3;
+  a_apple[1] = y;
+  sparkle.set(x+3,y, APPLE);*/
 }
 
 void spawn_apple() {
   int x,y;
-  do {
+  //do {
     x = random(10);
     y = random(7);
-  } while(field[x][y] == SNAKE);
-  field[x][y] = APPLE;
+  //} while(field[x][y] == SNAKE);
+  a_apple[0] = x;
+  a_apple[1] = y;
   sparkle.set(x,y, APPLE);
 }
 
@@ -91,6 +135,9 @@ void setup() {
   wdt_disable();
   Serial.begin(115200);
   Serial.println("starting round");
+
+  a_direction[0] = 1;
+  a_direction[1] = 0;
 
   spawn_snake();
   spawn_apple();
