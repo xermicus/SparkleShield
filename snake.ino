@@ -97,6 +97,16 @@ void turn_r() {
   }  
 }
 
+bool hit_snake(int x, int y) {
+  for(int i = 0; i < i_length; i++) {
+      if (x == a_snake[i][0] && y == a_snake[i][1]) {
+        return true;
+      }
+  }
+  
+  return false;
+}
+
 void next() {
   for (int i = 0; i<i_length; i++) {
     sparkle.set(a_snake[i][0], a_snake[i][1], WHITE);
@@ -113,7 +123,7 @@ void next() {
   if (a_snake[0][0] == a_apple[0] && a_snake[0][1] == a_apple[1]) {
     spawn_apple();
     i_length++;
-    if (i_delay > 50) {
+    if (i_delay > 100) {
       i_delay -=25;
     }
   }
@@ -140,21 +150,16 @@ void spawn_snake() {
   sparkle.set(x, y, SNAKE);
   a_snake[0][0] = x;
   a_snake[0][1] = y;
-  
-  /*a_apple[0] = x+3;
-  a_apple[1] = y;
-  sparkle.set(x+3,y, APPLE);*/
 }
 
 void spawn_apple() {
-  /* ToDo:
-   *  Collision detection mit schlange
-   */
   int x,y;
-  //do {
+  
+  do {  
     x = random(10);
     y = random(7);
-  //} while(field[x][y] == SNAKE);
+  } while(hit_snake(x, y));
+  
   a_apple[0] = x;
   a_apple[1] = y;
   sparkle.set(x,y, APPLE);
