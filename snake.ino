@@ -6,10 +6,10 @@
 #define TEXT_COLOR CHSV(70, 255, 255)
 #define BACKGROUND_COLOR CHSV(128, 255, 200)
 
-#define BRIGHTNESS 32
+#define BRIGHTNESS 24
 
-#define APPLE CRGB(255, 0, 0)
-#define SNAKE CRGB(255, 255, 255)
+#define APPLE CRGB(0, 255, 0)
+#define SNAKE CRGB(255, 255, 0)
 #define WHITE CRGB(0, 0, 0)
 
 bool b_gameover = false;
@@ -17,7 +17,7 @@ bool b_gameover = false;
 //bool b_movel = false;
 bool b_enter = false;
 
-int i_delay = 750;
+int i_delay = 500;
 int a_direction[2];
 int a_snake[70][2];
 int a_apple[2];
@@ -102,8 +102,7 @@ bool hit_snake(int x, int y) {
       if (x == a_snake[i][0] && y == a_snake[i][1]) {
         return true;
       }
-  }
-  
+  }  
   return false;
 }
 
@@ -119,12 +118,24 @@ void next() {
 
   a_snake[0][0] = a_snake[1][0] + a_direction[0];
   a_snake[0][1] = a_snake[1][1] + a_direction[1];
+  if(a_snake[0][0] > 9){
+    a_snake[0][0] = 0;
+  }
+  if(a_snake[0][0] < 0){
+    a_snake[0][0] = 9;
+  }
+  if(a_snake[0][1] > 6){
+    a_snake[0][1] = 0;
+  }
+  if(a_snake[0][1] < 0){
+    a_snake[0][1] = 6;
+  }
 
   if (a_snake[0][0] == a_apple[0] && a_snake[0][1] == a_apple[1]) {
     spawn_apple();
     i_length++;
-    if (i_delay > 100) {
-      i_delay -=25;
+    if (i_delay > 150) {
+      i_delay -= 30;
     }
   }
 
