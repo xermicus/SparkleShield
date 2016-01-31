@@ -17,11 +17,14 @@ bool b_gameover = false;
 //bool b_movel = false;
 bool b_enter = false;
 
-int i_delay = 1000;
+int i_delay = 750;
 int a_direction[2];
 int a_snake[70][2];
 int a_apple[2];
 int i_length = 1;
+
+int a_head[2];
+int a_last[2];
 
 SparkleShield sparkle;
 
@@ -52,46 +55,72 @@ void turn_l() {
   if (a_direction[0] == 1) {
     a_direction[0] = 0;
     a_direction[1] = 1;
+    return;
   }
   else if (a_direction[0] == -1) {
     a_direction[0] = 0;
     a_direction[1] = -1;
+    return;
   }
   else if (a_direction[1] == 1) {
-    a_direction[0] = 1;
-    a_direction[1] = 0;
-  }
-  else if (a_direction[1] == -1) {
     a_direction[0] = -1;
     a_direction[1] = 0;
+    return;
+  }
+  else if (a_direction[1] == -1) {
+    a_direction[0] = 1;
+    a_direction[1] = 0;
+    return;
   }
 }
 
 void turn_r() {
-  
+  if (a_direction[0] == 1) {
+    a_direction[0] = 0;
+    a_direction[1] = -1;
+    return;
+  }
+  else if (a_direction[0] == -1) {
+    a_direction[0] = 0;
+    a_direction[1] = 1;
+    return;
+  }
+  else if (a_direction[1] == 1) {
+    a_direction[0] = 1;
+    a_direction[1] = 0;
+    return;
+  }
+  else if (a_direction[1] == -1) {
+    a_direction[0] = -1;
+    a_direction[1] = 0;
+    return;
+  }  
 }
 
 void next() {
-  // letztes teil ablöschen
-  sparkle.set(a_snake[i_length-1][0], a_snake[i_length-1][1], WHITE);
-
-  // die schlange verschieben
-  for (int i = 1; i < i_length; i++) {
-    a_snake[i][0] = a_snake[i-1][0];
-    a_snake[i][1] = a_snake[i-1][1];
+  for (int i = 0; i<i_length; i++) {
+    sparkle.set(a_snake[i][0], a_snake[i][1], WHITE);
   }
-  
-  // kopf neu setzen
-  a_snake[0][0] += a_direction[0];
-  a_snake[0][1] += a_direction[1];
 
-  // auf apfel prüfen
+  for(int i = i_length; i>0; i--) {
+      a_snake[i][0] = a_snake[i-1][0];
+      a_snake[i][1] = a_snake[i-1][1];
+  }
+
+  a_snake[0][0] = a_snake[1][0] + a_direction[0];
+  a_snake[0][1] = a_snake[1][1] + a_direction[1];
+
   if (a_snake[0][0] == a_apple[0] && a_snake[0][1] == a_apple[1]) {
-    i_length++;
     spawn_apple();
+    i_length++;
+    if (i_delay > 50) {
+      i_delay -=25;
+    }
   }
-  
-  sparkle.set(a_snake[0][0], a_snake[0][1], SNAKE);
+
+  for (int i = 0; i<i_length; i++) {
+    sparkle.set(a_snake[i][0], a_snake[i][1], SNAKE);
+  }
 }
 
 void loop() {
@@ -105,6 +134,7 @@ void loop() {
 }
 
 void spawn_snake() {
+  i_length = 1;
   int x = random(10);
   int y = random(7);
   sparkle.set(x, y, SNAKE);
@@ -117,6 +147,9 @@ void spawn_snake() {
 }
 
 void spawn_apple() {
+  /* ToDo:
+   *  Collision detection mit schlange
+   */
   int x,y;
   //do {
     x = random(10);
