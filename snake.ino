@@ -43,11 +43,11 @@ void parse_cmd(){
         break;
       case 'b':
         b_bot = b_bot ? false : true;
-        Serial.println("bot");
+        if(b_bot) { Serial.println("bot on"); } else { Serial.println("bot off"); }
         break;
       case 'i':
         b_infinitebot = b_infinitebot ? false : true;
-        Serial.println("infbot");
+        if(b_infinitebot) { Serial.println("godmode on"); } else { Serial.println("godmode off"); }
         break;
       case 'q':
         gameover();
@@ -117,7 +117,7 @@ void bot() {
   int old_dir_y = a_direction[0];
   int old_dir_x = a_direction[1];
   
-  if (i_length < 11)
+  if (!b_infinitebot)
   {
     if (a_snake[0][0] > a_apple[0]) {
       a_direction[0] = -1;
@@ -127,6 +127,7 @@ void bot() {
       a_direction[0] = 1;
       a_direction[1] = 0;
     }
+
     else if (a_snake[0][1] > a_apple[1]) {
       a_direction[0] = 0;
       a_direction[1] = -1;
@@ -136,7 +137,7 @@ void bot() {
       a_direction[1] = 1;
     }
   }
-  else if (b_infinitebot){
+  if (b_infinitebot){
     if (a_snake[0][0] < 9 && a_snake[0][1] == 0) {
       a_direction[0] = 1;
       a_direction[1] = 0;
