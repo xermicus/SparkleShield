@@ -16,6 +16,8 @@
 bool b_pause = true;
 bool b_mover = false;
 bool b_movel = false;
+bool b_bot = false;
+bool b_infinitebot = false;
 
 int i_delay = 550;
 int a_direction[2];
@@ -38,6 +40,14 @@ void parse_cmd(){
         break;
       case (char)13:
         b_pause = b_pause ? false : true;
+        break;
+      case 'b':
+        b_bot = b_bot ? false : true;
+        Serial.println("bot");
+        break;
+      case 'i':
+        b_infinitebot = b_infinitebot ? false : true;
+        Serial.println("infbot");
         break;
       case 'q':
         gameover();
@@ -103,7 +113,139 @@ bool hit_snake(int x, int y, int offset) {
   return false;
 }
 
+void bot() {
+  int old_dir_y = a_direction[0];
+  int old_dir_x = a_direction[1];
+  
+  if (i_length < 11)
+  {
+    if (a_snake[0][0] > a_apple[0]) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;
+    }
+    else if (a_snake[0][0] < a_apple[0]) {
+      a_direction[0] = 1;
+      a_direction[1] = 0;
+    }
+    else if (a_snake[0][1] > a_apple[1]) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;
+    }
+    else if (a_snake[0][1] < a_apple[1]) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;
+    }
+  }
+  else if (b_infinitebot){
+    if (a_snake[0][0] < 9 && a_snake[0][1] == 0) {
+      a_direction[0] = 1;
+      a_direction[1] = 0;
+    }
+    if (a_snake[0][0] == 9 && a_snake[0][1] == 0) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;      
+    }
+    if (a_snake[0][0] == 9 && a_snake[0][1] == 6) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 8 && a_snake[0][1] == 6) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;      
+    }
+    if (a_snake[0][0] == 8 && a_snake[0][1] == 1) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 7 && a_snake[0][1] == 1) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;      
+    }
+    if (a_snake[0][0] == 7 && a_snake[0][1] == 6) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 6 && a_snake[0][1] == 6) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;      
+    }
+    if (a_snake[0][0] == 6 && a_snake[0][1] == 1) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 5 && a_snake[0][1] == 1) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;      
+    }
+    if (a_snake[0][0] == 5 && a_snake[0][1] == 6) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 4 && a_snake[0][1] == 6) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;      
+    }
+    if (a_snake[0][0] == 4 && a_snake[0][1] == 1) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 3 && a_snake[0][1] == 1) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;      
+    }
+    if (a_snake[0][0] == 3 && a_snake[0][1] == 6) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 2 && a_snake[0][1] == 6) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;      
+    }
+    if (a_snake[0][0] == 2 && a_snake[0][1] == 1) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 1 && a_snake[0][1] == 1) {
+      a_direction[0] = 0;
+      a_direction[1] = 1;      
+    }
+    if (a_snake[0][0] == 1 && a_snake[0][1] == 6) {
+      a_direction[0] = -1;
+      a_direction[1] = 0;      
+    }
+    if (a_snake[0][0] == 0 && a_snake[0][1] == 6) {
+      a_direction[0] = 0;
+      a_direction[1] = -1;      
+    }
+  }
+  
+  if (hit_snake(a_snake[0][0] + a_direction[0], a_snake[0][1] + a_direction[1], 1)) {
+    a_direction[0] = old_dir_y;
+    a_direction[1] = old_dir_x;
+  }
+  if (hit_snake(a_snake[0][0] + a_direction[0], a_snake[0][1] + a_direction[1], 1)) {
+    a_direction[0] = 0;
+    a_direction[1] = 1;
+  }
+  if (hit_snake(a_snake[0][0] + a_direction[0], a_snake[0][1] + a_direction[1], 1)) {
+    a_direction[0] = 1;
+    a_direction[1] = 0;
+  }
+  if (hit_snake(a_snake[0][0] + a_direction[0], a_snake[0][1] + a_direction[1], 1)) {
+    a_direction[0] = 0;
+    a_direction[1] = -1;
+  }
+  if (hit_snake(a_snake[0][0] + a_direction[0], a_snake[0][1] + a_direction[1], 1)) {
+    a_direction[0] = -1;
+    a_direction[1] = 0;
+  }
+}
+
 void next() {
+  if (b_bot) {
+    bot();
+  }
+  
   // turn
   if (b_mover) {
     turn_r();    
@@ -148,7 +290,7 @@ void next() {
   if (a_snake[0][0] == a_apple[0] && a_snake[0][1] == a_apple[1]) {
     spawn_apple();
     i_length++;
-    if (i_delay > 220) {
+    if (i_delay > 250) {
       i_delay -= 30;
     }
   }
