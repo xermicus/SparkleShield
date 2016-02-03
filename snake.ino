@@ -3,10 +3,10 @@
 #include <avr/wdt.h>
 
 #define M_GAMEOVER "   GAME OVER"
-#define TEXT_COLOR CHSV(70, 255, 255)
+#define TEXT_COLOR get_tcolor()
 #define BACKGROUND_COLOR CHSV(128, 255, 200)
 
-#define BRIGHTNESS 24
+#define BRIGHTNESS 48
 
 #define APPLE CRGB(255, 0, 0)
 #define SNAKE CRGB(0, 255, 0)
@@ -28,6 +28,12 @@ int i_length = 1;
 SparkleShield sparkle;
 
 
+CHSV get_tcolor() {
+  int score = (100 + 5 * i_length <= 255) ? (100 + 5 * i_length) : 255;
+  return CHSV(70, 255, score);
+}
+
+
 void parse_cmd(){
   while (Serial.available()) {
     switch (Serial.read()) {
@@ -40,6 +46,7 @@ void parse_cmd(){
         break;
       case (char)13:
         b_pause = b_pause ? false : true;
+        if(b_pause) { Serial.println("pause"); } else { Serial.println("continue"); }
         break;
       case 'b':
         b_bot = b_bot ? false : true;
@@ -304,7 +311,7 @@ void next() {
 void gameover() {
   // Score Animation
   char score[3];
-  itoa(i_length, score, 10);  
+  itoa(i_length-1, score, 10);  
   /*for (int i = 0; i < 1300; i++) {
     sparkle.clear(BACKGROUND_COLOR);
     sparkle.scroll_text(M_GAMEOVER, TEXT_COLOR);
@@ -324,7 +331,9 @@ void gameover() {
 
   i_delay = 550;
 
-  b_pause = true;
+  if (!b_bot) {
+    b_pause = true;
+  }
 }
 
 void loop() {
